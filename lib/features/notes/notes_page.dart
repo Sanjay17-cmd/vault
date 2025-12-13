@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'data/dummy_notes.dart';
+import 'widgets/note_card.dart';
 
 class NotesPage extends StatelessWidget
 {
@@ -25,10 +27,14 @@ class NotesPage extends StatelessWidget
           ),
         ],
       ),
-      body: const Center(
-        child: Text(
-          'Notes will appear here',
-          style: TextStyle(fontSize: 20),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: ListView.builder(
+          itemCount: notes.length,
+          itemBuilder: (context, index)
+          {
+            return NoteCard(note: notes[index]);
+          },
         ),
       ),
     );
