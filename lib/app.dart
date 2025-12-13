@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'features/notes/notes_page.dart';
+import 'features/home/home_page.dart';
 
 class VaultApp extends StatelessWidget
 {
@@ -13,7 +13,7 @@ class VaultApp extends StatelessWidget
       title: 'Vault',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
-      home: const NotesPage(),
+      home: const HomePage(),
     );
   }
 }

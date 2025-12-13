@@ -7,11 +7,28 @@ class NotesPage extends StatelessWidget
   @override
   Widget build(BuildContext context)
   {
-    return const Scaffold(
-      body: Center(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Notes'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search),
+            onPressed: ()
+            {
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: ()
+            {
+            },
+          ),
+        ],
+      ),
+      body: const Center(
         child: Text(
-          'Notes Page',
-          style: TextStyle(fontSize: 22),
+          'Notes will appear here',
+          style: TextStyle(fontSize: 20),
         ),
       ),
     );
