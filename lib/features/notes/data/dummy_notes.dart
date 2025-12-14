@@ -1,14 +1,25 @@
 import '../model/note_model.dart';
 
-final List<Note> notes =
-[
+List<Note> notes = [
   Note(
-    title: 'Welcome to Vault',
-    content: 'This is your first secure note.',
+    id: 'n1',
+    notebookId: 'nb_personal',
+    title: 'Shopping List',
+    content: 'Milk, Bread, Eggs',
+    lastEdited: DateTime.now(),
   ),
   Note(
-    title: 'Private Note',
-    content: 'This note will be locked later.',
-    isLocked: true,
+    id: 'n2',
+    notebookId: 'nb_work',
+    title: 'Meeting Notes',
+    content: 'Discuss project timeline',
+    lastEdited: DateTime.now(),
+  ),
+  Note(
+    id: 'n3',
+    notebookId: 'nb_personal',
+    title: 'Workout Plan',
+    content: 'Monday: Chest\nTuesday: Back',
+    lastEdited: DateTime.now(),
   ),
 ];

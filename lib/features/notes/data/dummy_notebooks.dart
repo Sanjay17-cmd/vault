@@ -1,9 +1,21 @@
 import '../model/notebook_model.dart';
 
-final List<Notebook> notebooks =
-[
-  Notebook(name: 'All Notes'),
-  Notebook(name: 'Personal'),
-  Notebook(name: 'Work'),
-  Notebook(name: 'Private', isLocked: true),
+List<Notebook> notebooks = [
+  Notebook(
+    id: 'nb_all',
+    name: 'All Notes',
+  ),
+  Notebook(
+    id: 'nb_personal',
+    name: 'Personal',
+  ),
+  Notebook(
+    id: 'nb_work',
+    name: 'Work',
+  ),
+  Notebook(
+    id: 'nb_locked',
+    name: 'Locked',
+    isLocked: true,
+  ),
 ];
