@@ -1,7 +1,7 @@
 class Note
 {
   final String id;
-  final String notebookId;
+  String notebookId;
   String title;
   String content;
   DateTime lastEdited;

@@ -6,6 +6,8 @@ import 'model/note_model.dart';
 import 'widgets/note_card.dart';
 import 'widgets/notebook_chip.dart';
 import '../vault/locked_notes_page.dart';
+import '../../editor/note_editor_page.dart';
+
 
 class NotesPage extends StatefulWidget
 {
@@ -391,7 +393,21 @@ class _NotesPageState extends State<NotesPage>
                   note: note,
                   onTap: ()
                   {
-                    _onNoteTap(note);
+                    if (_selectionMode)
+                    {
+                      _onNoteTap(note);
+                    }
+                    else
+                    {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => NoteEditorPage(note: note),
+                        ),
+                      ).then((_) {
+                        setState(() {});
+                      });
+                    }
                   },
                   onLongPress: ()
                   {
