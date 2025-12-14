@@ -21,13 +21,15 @@ class NotesPage extends StatefulWidget
 class _NotesPageState extends State<NotesPage>
 {
   late Notebook _activeNotebook;
+  int _activeNotebookIndex = 0;
   bool _selectionMode = false;
 
   @override
   void initState()
   {
     super.initState();
-    _activeNotebook = notebooks.first;
+    _activeNotebookIndex = 0;
+    _activeNotebook = notebooks[_activeNotebookIndex];
   }
 
   List<Note> get _filteredNotes
@@ -44,6 +46,8 @@ class _NotesPageState extends State<NotesPage>
   void _selectNotebook(Notebook notebook)
   {
     setState(() {
+      _activeNotebookIndex =
+          notebooks.indexWhere((n) => n.id == notebook.id);
       _activeNotebook = notebook;
       _clearSelection();
     });
@@ -84,6 +88,114 @@ class _NotesPageState extends State<NotesPage>
       notes.removeWhere((note) => note.isSelected);
       _selectionMode = false;
     });
+  }
+
+  void _renameNotebook()
+  {
+    final controller =
+    TextEditingController(text: _activeNotebook.name);
+
+    showDialog(
+      context: context,
+      builder: (context)
+      {
+        return AlertDialog(
+          title: const Text('Rename notebook'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+          ),
+          actions: [
+            TextButton(
+              onPressed: ()
+              {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: ()
+              {
+                setState(() {
+                  notebooks[_activeNotebookIndex] = Notebook(
+                    id: _activeNotebook.id,
+                    name: controller.text.trim(),
+                    isLocked: _activeNotebook.isLocked,
+                  );
+                  _activeNotebook =
+                  notebooks[_activeNotebookIndex];
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Rename'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _deleteNotebook()
+  {
+    final deletedNotebook = _activeNotebook;
+    final deletedIndex = _activeNotebookIndex;
+
+    showDialog(
+      context: context,
+      builder: (context)
+      {
+        return AlertDialog(
+          title: const Text('Delete notebook?'),
+          content:
+          const Text('All notes inside will be removed.'),
+          actions: [
+            TextButton(
+              onPressed: ()
+              {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: ()
+              {
+                setState(() {
+                  notebooks.removeAt(deletedIndex);
+                  notes.removeWhere(
+                        (n) => n.notebookId == deletedNotebook.id,
+                  );
+
+                  _activeNotebookIndex = 0;
+                  _activeNotebook = notebooks.first;
+                });
+
+                Navigator.pop(context);
+
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(
+                  SnackBar(
+                    duration: const Duration(seconds: 6),
+                    content:
+                    const Text('Notebook deleted'),
+                    action: SnackBarAction(
+                      label: 'UNDO',
+                      onPressed: ()
+                      {
+                        setState(() {
+                          notebooks.insert(
+                              deletedIndex, deletedNotebook);
+                        });
+                      },
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _openLockedNotes()
@@ -127,10 +239,28 @@ class _NotesPageState extends State<NotesPage>
               {
                 _openLockedNotes();
               }
+              if (value == 'rename_notebook')
+              {
+                _renameNotebook();
+              }
+              else if (value == 'delete_notebook')
+              {
+                _deleteNotebook();
+              }
             },
             itemBuilder: (context)
             {
               return [
+                if (!_selectionMode)
+                  const PopupMenuItem(
+                    value: 'rename_notebook',
+                    child: Text('Rename notebook'),
+                  ),
+                if (!_selectionMode)
+                  const PopupMenuItem(
+                    value: 'delete_notebook',
+                    child: Text('Delete notebook'),
+                  ),
                 if (_selectionMode)
                   const PopupMenuItem(
                     value: 'delete',
