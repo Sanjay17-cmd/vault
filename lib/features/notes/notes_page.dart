@@ -90,6 +90,62 @@ class _NotesPageState extends State<NotesPage>
     });
   }
 
+  void _moveSelectedNotes(String targetNotebookId)
+  {
+    setState(() {
+      for (var note in notes)
+      {
+        if (note.isSelected)
+        {
+          note.notebookId = targetNotebookId;
+          note.isSelected = false;
+        }
+      }
+      _selectionMode = false;
+    });
+  }
+
+  void _showMoveDialog()
+  {
+    showDialog(
+      context: context,
+      builder: (context)
+      {
+        return SimpleDialog(
+          title: const Text('Move to notebook'),
+          children: notebooks
+              .where((n) => n.id != _activeNotebook.id)
+              .map(
+                (notebook) => SimpleDialogOption(
+              child: Text(notebook.name),
+              onPressed: ()
+              {
+                Navigator.pop(context);
+                _moveSelectedNotes(notebook.id);
+              },
+            ),
+          )
+              .toList(),
+        );
+      },
+    );
+  }
+
+  void _moveToLocked()
+  {
+    setState(() {
+      for (var note in notes)
+      {
+        if (note.isSelected)
+        {
+          note.isLocked = true;
+          note.isSelected = false;
+        }
+      }
+      _selectionMode = false;
+    });
+  }
+
   void _renameNotebook()
   {
     final controller =
@@ -231,14 +287,6 @@ class _NotesPageState extends State<NotesPage>
           PopupMenuButton<String>(
             onSelected: (value)
             {
-              if (value == 'delete')
-              {
-                _deleteSelectedNotes();
-              }
-              else if (value == 'locked')
-              {
-                _openLockedNotes();
-              }
               if (value == 'rename_notebook')
               {
                 _renameNotebook();
@@ -246,6 +294,22 @@ class _NotesPageState extends State<NotesPage>
               else if (value == 'delete_notebook')
               {
                 _deleteNotebook();
+              }
+              else if (value == 'delete')
+              {
+                _deleteSelectedNotes();
+              }
+              else if (value == 'move')
+              {
+                _showMoveDialog();
+              }
+              else if (value == 'lock')
+              {
+                _moveToLocked();
+              }
+              else if (value == 'locked')
+              {
+                _openLockedNotes();
               }
             },
             itemBuilder: (context)
@@ -265,6 +329,16 @@ class _NotesPageState extends State<NotesPage>
                   const PopupMenuItem(
                     value: 'delete',
                     child: Text('Delete notes'),
+                  ),
+                if (_selectionMode)
+                  const PopupMenuItem(
+                    value: 'move',
+                    child: Text('Move to notebook'),
+                  ),
+                if (_selectionMode)
+                  const PopupMenuItem(
+                    value: 'lock',
+                    child: Text('Move to locked'),
                   ),
                 if (!_selectionMode)
                   const PopupMenuItem(
