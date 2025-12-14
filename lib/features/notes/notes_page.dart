@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'data/dummy_notes.dart';
 import 'data/dummy_notebooks.dart';
-import 'widgets/note_card.dart';
-import 'widgets/notebook_chip.dart';
-import '../vault/vault_page.dart';
-import '../vault/locked_notes_page.dart';
 import 'model/notebook_model.dart';
 import 'model/note_model.dart';
+import 'widgets/note_card.dart';
+import 'widgets/notebook_chip.dart';
+import '../vault/locked_notes_page.dart';
 
 class NotesPage extends StatefulWidget
 {
@@ -21,281 +20,121 @@ class NotesPage extends StatefulWidget
 
 class _NotesPageState extends State<NotesPage>
 {
+  late Notebook _activeNotebook;
   bool _selectionMode = false;
 
-  void _onNoteLongPress(int index)
+  @override
+  void initState()
+  {
+    super.initState();
+    _activeNotebook = notebooks.first;
+  }
+
+  List<Note> get _filteredNotes
+  {
+    return notes.where((note) {
+      if (_activeNotebook.isLocked)
+      {
+        return note.isLocked;
+      }
+      return note.notebookId == _activeNotebook.id && !note.isLocked;
+    }).toList();
+  }
+
+  void _selectNotebook(Notebook notebook)
   {
     setState(() {
-      _selectionMode = true;
-      notes[index].isSelected = true;
+      _activeNotebook = notebook;
+      _clearSelection();
     });
   }
 
-  void _onNoteTap(int index)
+  void _onNoteLongPress(Note note)
+  {
+    setState(() {
+      _selectionMode = true;
+      note.isSelected = true;
+    });
+  }
+
+  void _onNoteTap(Note note)
   {
     if (_selectionMode)
     {
       setState(() {
-        notes[index].isSelected = !notes[index].isSelected;
+        note.isSelected = !note.isSelected;
         _selectionMode =
-            notes.any((note) => note.isSelected);
+            _filteredNotes.any((n) => n.isSelected);
       });
     }
   }
 
   void _clearSelection()
   {
+    for (var note in notes)
+    {
+      note.isSelected = false;
+    }
+    _selectionMode = false;
+  }
+
+  void _deleteSelectedNotes()
+  {
     setState(() {
-      for (var note in notes)
-      {
-        note.isSelected = false;
-      }
+      notes.removeWhere((note) => note.isSelected);
       _selectionMode = false;
     });
   }
 
-  void _openNotebook(BuildContext context, bool isLocked)
+  void _openLockedNotes()
   {
-    if (isLocked)
-    {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const VaultPage(),
-        ),
-      );
-    }
-  }
-
-  // ====== Notebook Actions ======
-
-  void _createNotebook()
-  {
-    String notebookName = '';
-    showDialog(
-      context: context,
-      builder: (context)
-      {
-        return AlertDialog(
-          title: const Text('Create Notebook'),
-          content: TextField(
-            onChanged: (value)
-            {
-              notebookName = value;
-            },
-            decoration: const InputDecoration(
-              hintText: 'Notebook name',
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () { Navigator.pop(context); },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: ()
-              {
-                if (notebookName.trim().isNotEmpty)
-                {
-                  setState(() {
-                    notebooks.add(Notebook(name: notebookName));
-                  });
-                }
-                Navigator.pop(context);
-              },
-              child: const Text('Create'),
-            ),
-          ],
-        );
-      },
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const LockedNotesPage(),
+      ),
     );
-  }
-
-  void _renameNotebook(int index)
-  {
-    String notebookName = notebooks[index].name;
-    showDialog(
-      context: context,
-      builder: (context)
-      {
-        return AlertDialog(
-          title: const Text('Rename Notebook'),
-          content: TextField(
-            onChanged: (value) { notebookName = value; },
-            controller: TextEditingController(text: notebooks[index].name),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () { Navigator.pop(context); },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: ()
-              {
-                if (notebookName.trim().isNotEmpty)
-                {
-                  setState(() {
-                    notebooks[index] = Notebook(
-                      name: notebookName,
-                      isLocked: notebooks[index].isLocked,
-                    );
-                  });
-                }
-                Navigator.pop(context);
-              },
-              child: const Text('Rename'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _deleteNotebook(int index)
-  {
-    showDialog(
-      context: context,
-      builder: (context)
-      {
-        return AlertDialog(
-          title: const Text('Delete Notebook?'),
-          content: Text('Are you sure you want to delete "${notebooks[index].name}"?'),
-          actions: [
-            TextButton(
-              onPressed: () { Navigator.pop(context); },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: ()
-              {
-                setState(() {
-                  notebooks.removeAt(index);
-                });
-                Navigator.pop(context);
-              },
-              child: const Text('Delete'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _moveNotesToNotebook()
-  {
-    List<Note> selected = notes.where((note) => note.isSelected).toList();
-
-    showDialog(
-      context: context,
-      builder: (context)
-      {
-        return AlertDialog(
-          title: const Text('Move Notes To'),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: ListView.builder(
-              shrinkWrap: true,
-              itemCount: notebooks.length,
-              itemBuilder: (context, index)
-              {
-                return ListTile(
-                  title: Text(notebooks[index].name),
-                  onTap: ()
-                  {
-                    setState(() {
-                      // For now, just clear selection
-                      for (var note in selected)
-                      {
-                        note.isSelected = false;
-                      }
-                      _selectionMode = false;
-                    });
-                    Navigator.pop(context);
-                  },
-                );
-              },
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  void _onMenuSelected(String value, [int? notebookIndex])
-  {
-    if (value == 'locked')
-    {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => const LockedNotesPage(),
-        ),
-      );
-    }
-    else if (value == 'delete_notes')
-    {
-      setState(() {
-        notes.removeWhere((note) => note.isSelected);
-        _selectionMode = false;
-      });
-    }
-    else if (value == 'move')
-    {
-      _moveNotesToNotebook();
-    }
-    else if (value == 'create')
-    {
-      _createNotebook();
-    }
-    else if (value == 'rename' && notebookIndex != null)
-    {
-      _renameNotebook(notebookIndex);
-    }
-    else if (value == 'delete_notebook' && notebookIndex != null)
-    {
-      _deleteNotebook(notebookIndex);
-    }
   }
 
   @override
   Widget build(BuildContext context)
   {
     final int selectedCount =
-        notes.where((note) => note.isSelected).length;
+        _filteredNotes.where((n) => n.isSelected).length;
 
     return Scaffold(
       appBar: AppBar(
+        title: Text(
+          _selectionMode
+              ? '$selectedCount selected'
+              : _activeNotebook.name,
+        ),
         leading: _selectionMode
             ? IconButton(
           icon: const Icon(Icons.close),
           onPressed: _clearSelection,
         )
             : null,
-        title: Text(
-          _selectionMode
-              ? '$selectedCount selected'
-              : 'Notes',
-        ),
         actions: [
           PopupMenuButton<String>(
-            onSelected: (value) => _onMenuSelected(value),
+            onSelected: (value)
+            {
+              if (value == 'delete')
+              {
+                _deleteSelectedNotes();
+              }
+              else if (value == 'locked')
+              {
+                _openLockedNotes();
+              }
+            },
             itemBuilder: (context)
             {
               return [
-                if (!_selectionMode)
-                  const PopupMenuItem(
-                    value: 'create',
-                    child: Text('Create notebook'),
-                  ),
                 if (_selectionMode)
                   const PopupMenuItem(
-                    value: 'delete_notes',
+                    value: 'delete',
                     child: Text('Delete notes'),
-                  ),
-                if (_selectionMode)
-                  const PopupMenuItem(
-                    value: 'move',
-                    child: Text('Move to notebook'),
                   ),
                 if (!_selectionMode)
                   const PopupMenuItem(
@@ -320,41 +159,13 @@ class _NotesPageState extends State<NotesPage>
                 final notebook = notebooks[index];
                 return NotebookChip(
                   notebook: notebook,
+                  isActive: notebook.id == _activeNotebook.id,
                   onTap: ()
                   {
-                    _openNotebook(context, notebook.isLocked);
+                    _selectNotebook(notebook);
                   },
                   onMenuTap: ()
                   {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (context)
-                      {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.edit),
-                              title: const Text('Rename'),
-                              onTap: ()
-                              {
-                                Navigator.pop(context);
-                                _onMenuSelected('rename', index);
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.delete),
-                              title: const Text('Delete'),
-                              onTap: ()
-                              {
-                                Navigator.pop(context);
-                                _onMenuSelected('delete_notebook', index);
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
                   },
                 );
               },
@@ -362,28 +173,37 @@ class _NotesPageState extends State<NotesPage>
           ),
           const Divider(),
           Expanded(
-            child: Padding(
+            child: _filteredNotes.isEmpty
+                ? const Center(
+              child: Text('No notes'),
+            )
+                : ListView.builder(
               padding: const EdgeInsets.all(16),
-              child: ListView.builder(
-                itemCount: notes.length,
-                itemBuilder: (context, index)
-                {
-                  return NoteCard(
-                    note: notes[index],
-                    onTap: ()
-                    {
-                      _onNoteTap(index);
-                    },
-                    onLongPress: ()
-                    {
-                      _onNoteLongPress(index);
-                    },
-                  );
-                },
-              ),
+              itemCount: _filteredNotes.length,
+              itemBuilder: (context, index)
+              {
+                final note = _filteredNotes[index];
+                return NoteCard(
+                  note: note,
+                  onTap: ()
+                  {
+                    _onNoteTap(note);
+                  },
+                  onLongPress: ()
+                  {
+                    _onNoteLongPress(note);
+                  },
+                );
+              },
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: ()
+        {
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
