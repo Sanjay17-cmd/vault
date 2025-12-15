@@ -10,6 +10,11 @@ List<Notebook> notebooks = [
     name: 'Personal',
   ),
   Notebook(
+    id: 'all',
+    name: 'All notes',
+    isLocked: false,
+  ),
+  Notebook(
     id: 'nb_work',
     name: 'Work',
   ),

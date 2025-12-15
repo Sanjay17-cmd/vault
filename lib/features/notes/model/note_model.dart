@@ -1,20 +1,20 @@
 class Note
 {
   final String id;
-  String notebookId;
   String title;
   String content;
-  DateTime lastEdited;
+  String notebookId;
   bool isLocked;
   bool isSelected;
+  DateTime lastEdited;
 
   Note({
     required this.id,
-    required this.notebookId,
     required this.title,
     required this.content,
+    required this.notebookId,
+    required this.isLocked,
+    required this.isSelected,
     required this.lastEdited,
-    this.isLocked = false,
-    this.isSelected = false,
   });
 }

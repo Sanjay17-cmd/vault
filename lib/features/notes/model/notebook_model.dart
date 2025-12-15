@@ -1,7 +1,7 @@
 class Notebook
 {
   final String id;
-  final String name;
+  String name;
   final bool isLocked;
 
   Notebook({

@@ -21,7 +21,7 @@ class NoteCard extends StatelessWidget
       onTap: onTap,
       onLongPress: onLongPress,
       child: Card(
-        color: note.isSelected ? Colors.blue.withOpacity(0.1) : null,
+        color: note.isSelected ? Colors.blue.withValues(alpha: 0.1) : null,
         elevation: 0,
         margin: const EdgeInsets.symmetric(vertical: 6),
         shape: RoundedRectangleBorder(
