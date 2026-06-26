@@ -1,6 +1,6 @@
 {
-    "name": "vault_pro_app",
-    "short_name": "vault_pro_app",
+    "name": "Vault",
+    "short_name": "Vault",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

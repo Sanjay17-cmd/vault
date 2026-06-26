@@ -27,7 +27,7 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() {
       _tokenController.text = prefs.getString('remindly_token') ?? '';
       _vaultEnabled = prefs.getBool('vault_enabled') ?? false;
-      _isDarkMode = prefs.getBool('is_dark_mode') ?? false;
+      _isDarkMode = prefs.getBool('is_dark_mode') ?? true;
     });
   }
 
