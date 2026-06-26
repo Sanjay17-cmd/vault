@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_quill/flutter_quill.dart' hide Text;
+import 'package:flutter_quill/flutter_quill.dart';
 import '../notes/model/note_model.dart';
 import '../../core/storage/hive_service.dart';
 
@@ -20,6 +20,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
   late TextEditingController _titleController;
   late QuillController _quillController;
   final FocusNode _editorFocusNode = FocusNode();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -57,6 +58,7 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     _titleController.dispose();
     _quillController.dispose();
     _editorFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -90,8 +92,9 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
             ),
           ),
           const Divider(),
-          QuillToolbar.basic(
+          QuillSimpleToolbar(
             controller: _quillController,
+            config: const QuillSimpleToolbarConfig(),
           ),
           const Divider(),
           Expanded(
@@ -100,12 +103,8 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
               child: QuillEditor(
                 controller: _quillController,
                 focusNode: _editorFocusNode,
-                scrollController: ScrollController(),
-                scrollable: true,
-                padding: EdgeInsets.zero,
-                autoFocus: false,
-                readOnly: false,
-                expands: true,
+                scrollController: _scrollController,
+                config: const QuillEditorConfig(),
               ),
             ),
           ),
@@ -114,3 +113,4 @@ class _NoteEditorPageState extends State<NoteEditorPage> {
     );
   }
 }
+

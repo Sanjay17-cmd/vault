@@ -3,7 +3,7 @@ import 'core/theme/app_theme.dart';
 import 'features/home/home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.light);
+final ValueNotifier<ThemeMode> themeNotifier = ValueNotifier(ThemeMode.dark);
 
 class VaultApp extends StatefulWidget {
   const VaultApp({super.key});
@@ -21,7 +21,7 @@ class _VaultAppState extends State<VaultApp> {
 
   Future<void> _loadTheme() async {
     final prefs = await SharedPreferences.getInstance();
-    final isDark = prefs.getBool('is_dark_mode') ?? false;
+    final isDark = prefs.getBool('is_dark_mode') ?? true;
     themeNotifier.value = isDark ? ThemeMode.dark : ThemeMode.light;
   }
 
